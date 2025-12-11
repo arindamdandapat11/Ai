@@ -7,7 +7,7 @@ import java.util.List;
 @Data
 public class GeminiResponse {
 
-    private List candidates;
+    private List<Candidate> candidates;
 
     @Data
     public static class Candidate {
@@ -16,7 +16,7 @@ public class GeminiResponse {
 
     @Data
     public static class Content {
-        private List parts;
+        private List<Part> parts;
     }
 
     @Data

@@ -11,13 +11,13 @@ import java.util.List;
 @AllArgsConstructor
 public class GeminiRequest {
 
-    private List contents;
+    private List<Content> contents;
 
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Content {
-        private List parts;
+        private List<Part> parts;
     }
 
     @Data

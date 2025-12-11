@@ -2,6 +2,7 @@ package com.cimbaai.emailassistant.service;
 
 import com.cimbaai.emailassistant.dto.GeminiRequest;
 import com.cimbaai.emailassistant.dto.GeminiResponse;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -12,6 +13,7 @@ import java.util.Collections;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class GeminiAIService {
 
     @Value("${gemini.api.key}")
@@ -21,10 +23,6 @@ public class GeminiAIService {
     private String apiUrl;
 
     private final RestTemplate restTemplate;
-
-    public GeminiAIService(RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
-    }
 
     public String generateReply(String emailBody, String tone, String sender, String subject) {
         try {
@@ -41,10 +39,10 @@ public class GeminiAIService {
 
             // Make API call
             String url = apiUrl + "?key=" + apiKey;
-            HttpEntity entity = new HttpEntity<>(request, headers);
+            HttpEntity<GeminiRequest> entity = new HttpEntity<>(request, headers);
 
             log.info("Calling Gemini API for {} tone", tone);
-            ResponseEntity response = restTemplate.exchange(
+            ResponseEntity<GeminiResponse> response = restTemplate.exchange(
                     url,
                     HttpMethod.POST,
                     entity,
@@ -53,6 +51,7 @@ public class GeminiAIService {
 
             // Extract generated text
             if (response.getBody() != null &&
+                    response.getBody().getCandidates() != null &&
                     !response.getBody().getCandidates().isEmpty()) {
 
                 String generatedText = response.getBody()

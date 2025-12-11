@@ -1,14 +1,19 @@
 package com.cimbaai.emailassistant.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import java.time.LocalDateTime;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
+import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "email_replies")
-@Data
+@Data  // ⬅️ THIS IS CRITICAL
 @NoArgsConstructor
 @AllArgsConstructor
 public class EmailReply {
@@ -17,32 +22,31 @@ public class EmailReply {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(length = 255)
     private String sender;
 
     @Column(length = 500)
     private String subject;
 
     @Column(columnDefinition = "TEXT", nullable = false)
+    @NotBlank(message = "Email body is required")
     private String body;
 
-    @Column(nullable = false, length = 50)
+    @Column(length = 50, nullable = false)
+    @NotBlank(message = "Tone is required")
+    @Pattern(regexp = "^(professional|friendly|concise)$",
+            message = "Tone must be professional, friendly, or concise")
     private String tone;
 
-    @Column(columnDefinition = "TEXT", nullable = false)
+    @Column(name = "generated_reply", columnDefinition = "TEXT", nullable = false)
+    @NotBlank(message = "Generated reply is required")
     private String generatedReply;
 
-    private LocalDateTime createdAt;
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private OffsetDateTime createdAt;
 
-    private LocalDateTime updatedAt;
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        updatedAt = LocalDateTime.now();
-    }
+    @UpdateTimestamp
+    @Column(name = "updated_at")
+    private OffsetDateTime updatedAt;
 }

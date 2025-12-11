@@ -5,6 +5,7 @@ import com.cimbaai.emailassistant.dto.EmailReplyResponse;
 import com.cimbaai.emailassistant.model.EmailReply;
 import com.cimbaai.emailassistant.repository.EmailReplyRepository;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +21,7 @@ public class EmailReplyService {
     private final EmailReplyRepository repository;
     private final GeminiAIService aiService;
 
+    @Autowired
     public EmailReplyService(EmailReplyRepository repository, GeminiAIService aiService) {
         this.repository = repository;
         this.aiService = aiService;
@@ -72,9 +74,9 @@ public class EmailReplyService {
         }
     }
 
-    public List getAllReplies() {
-        return repository.findAllByOrderByCreatedAtDesc()
-                .stream()
+    public List<EmailReplyResponse> getAllReplies() {
+        List<EmailReply> replies = repository.findAllByOrderByCreatedAtDesc();
+        return replies.stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
     }
@@ -85,10 +87,10 @@ public class EmailReplyService {
                 .orElse(null);
     }
 
-    public List getRecentReplies() {
+    public List<EmailReplyResponse> getRecentReplies() {
         OffsetDateTime thirtyDaysAgo = OffsetDateTime.now().minusDays(30);
-        return repository.findRecentReplies(thirtyDaysAgo)
-                .stream()
+        List<EmailReply> replies = repository.findRecentReplies(thirtyDaysAgo);
+        return replies.stream()
                 .map(this::convertToResponse)
                 .collect(Collectors.toList());
     }
@@ -107,4 +109,3 @@ public class EmailReplyService {
                 .build();
     }
 }
-
