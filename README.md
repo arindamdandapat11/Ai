@@ -2,9 +2,7 @@
 
 A Spring Boot-based backend service that powers an AI-driven email assistant. This application helps generate intelligent email responses, manage email workflows, and provide automated email assistance using AI capabilities.
 
-## 🛠️ Tech Stack
-
-<div align="center">
+##  Tech Stack
 
 ### Backend Framework
 ![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=spring-boot&logoColor=white)
