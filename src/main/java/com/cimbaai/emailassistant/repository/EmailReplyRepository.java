@@ -1,29 +1,25 @@
 package com.cimbaai.emailassistant.repository;
 
-import com.cimbaai.emailassistant.model.EmailReply;
+import java.time.OffsetDateTime;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.time.OffsetDateTime;
-import java.util.List;
+import com.cimbaai.emailassistant.model.EmailReply;
 
 @Repository
-public interface EmailReplyRepository extends JpaRepository {
+public interface EmailReplyRepository extends JpaRepository<EmailReply, Long> {
 
-    // Find all replies ordered by creation date (newest first)
-    List findAllByOrderByCreatedAtDesc();
+    List<EmailReply> findAllByOrderByCreatedAtDesc();
 
-    // Find replies by tone
-    List findByTone(String tone);
+    List<EmailReply> findByTone(String tone);
 
-    // Find replies created after a certain date
-    List findByCreatedAtAfter(OffsetDateTime date);
+    List<EmailReply> findByCreatedAtAfter(OffsetDateTime date);
 
-    // Custom query to get recent replies (last 30 days)
     @Query("SELECT e FROM EmailReply e WHERE e.createdAt >= :thirtyDaysAgo ORDER BY e.createdAt DESC")
-    List findRecentReplies(OffsetDateTime thirtyDaysAgo);
+    List<EmailReply> findRecentReplies(OffsetDateTime thirtyDaysAgo);
 
-    // Count replies by tone
     long countByTone(String tone);
 }

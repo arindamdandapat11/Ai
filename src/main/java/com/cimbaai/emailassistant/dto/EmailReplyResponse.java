@@ -22,7 +22,6 @@ public class EmailReplyResponse {
     private OffsetDateTime createdAt;
     private OffsetDateTime updatedAt;
 
-    // Success response
     private boolean success;
     private String message;
 }

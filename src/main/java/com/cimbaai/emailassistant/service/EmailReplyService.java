@@ -1,17 +1,19 @@
 package com.cimbaai.emailassistant.service;
 
-import com.cimbaai.emailassistant.dto.EmailReplyRequest;
-import com.cimbaai.emailassistant.dto.EmailReplyResponse;
-import com.cimbaai.emailassistant.model.EmailReply;
-import com.cimbaai.emailassistant.repository.EmailReplyRepository;
-import lombok.extern.slf4j.Slf4j;
+import java.time.OffsetDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
+import com.cimbaai.emailassistant.dto.EmailReplyRequest;
+import com.cimbaai.emailassistant.dto.EmailReplyResponse;
+import com.cimbaai.emailassistant.model.EmailReply;
+import com.cimbaai.emailassistant.repository.EmailReplyRepository;
+
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @Slf4j
@@ -30,8 +32,6 @@ public class EmailReplyService {
     public EmailReplyResponse generateAndSaveReply(EmailReplyRequest request) {
         try {
             log.info("Generating reply for email with tone: {}", request.getTone());
-
-            // Generate reply using AI
             String generatedReply = aiService.generateReply(
                     request.getBody(),
                     request.getTone(),
@@ -39,7 +39,6 @@ public class EmailReplyService {
                     request.getSubject()
             );
 
-            // Create entity
             EmailReply emailReply = new EmailReply();
             emailReply.setSender(request.getSender());
             emailReply.setSubject(request.getSubject());
@@ -47,11 +46,9 @@ public class EmailReplyService {
             emailReply.setTone(request.getTone());
             emailReply.setGeneratedReply(generatedReply);
 
-            // Save to database
-            EmailReply saved = repository.save(emailReply);
+            EmailReply saved = (EmailReply)repository.save(emailReply);
             log.info("Saved email reply with ID: {}", saved.getId());
 
-            // Convert to response DTO
             return EmailReplyResponse.builder()
                     .id(saved.getId())
                     .sender(saved.getSender())

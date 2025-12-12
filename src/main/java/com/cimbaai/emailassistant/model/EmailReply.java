@@ -13,7 +13,7 @@ import java.time.OffsetDateTime;
 
 @Entity
 @Table(name = "email_replies")
-@Data  // ⬅️ THIS IS CRITICAL
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 public class EmailReply {

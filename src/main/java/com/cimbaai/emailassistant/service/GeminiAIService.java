@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Collections;
@@ -28,16 +29,13 @@ public class GeminiAIService {
         try {
             String prompt = buildPrompt(emailBody, tone, sender, subject);
 
-            // Build request
             GeminiRequest.Part part = new GeminiRequest.Part(prompt);
             GeminiRequest.Content content = new GeminiRequest.Content(Collections.singletonList(part));
             GeminiRequest request = new GeminiRequest(Collections.singletonList(content));
 
-            // Set headers
             HttpHeaders headers = new HttpHeaders();
             headers.setContentType(MediaType.APPLICATION_JSON);
 
-            // Make API call
             String url = apiUrl + "?key=" + apiKey;
             HttpEntity<GeminiRequest> entity = new HttpEntity<>(request, headers);
 
@@ -49,7 +47,6 @@ public class GeminiAIService {
                     GeminiResponse.class
             );
 
-            // Extract generated text
             if (response.getBody() != null &&
                     response.getBody().getCandidates() != null &&
                     !response.getBody().getCandidates().isEmpty()) {
@@ -67,6 +64,25 @@ public class GeminiAIService {
             }
 
             throw new RuntimeException("Empty response from Gemini AI");
+
+        } catch (HttpStatusCodeException httpError) {
+            String responseBody = httpError.getResponseBodyAsString();
+            String status = httpError.getStatusCode().toString();
+            String reason = httpError.getStatusText();
+            log.warn("Gemini API returned error status={} reason={} apiKeySuffix={} bodySnippet={}",
+                    status,
+                    reason,
+                    maskKey(apiKey),
+                    snippet(responseBody));
+
+            boolean likelyAuthIssue = httpError.getStatusCode().is4xxClientError() &&
+                    (responseBody != null && responseBody.toLowerCase().contains("api key"));
+
+            String friendlyMessage = likelyAuthIssue
+                    ? "Gemini API key may be invalid or expired. Please rotate GEMINI_API_KEY."
+                    : "Gemini API call failed with status " + status + " (" + reason + ").";
+
+            throw new RuntimeException("Failed to generate reply: " + friendlyMessage);
 
         } catch (Exception e) {
             log.error("Error generating reply with Gemini AI", e);
@@ -112,5 +128,17 @@ public class GeminiAIService {
             default ->
                     "Use a balanced, professional tone.";
         };
+    }
+
+    private String snippet(String body) {
+        if (body == null) return "null";
+        String cleaned = body.replaceAll("\\s+", " ");
+        return cleaned.substring(0, Math.min(cleaned.length(), 300));
+    }
+
+    private String maskKey(String key) {
+        if (key == null || key.isBlank()) return "null";
+        if (key.length() <= 4) return "***" + key;
+        return "***" + key.substring(key.length() - 4);
     }
 }

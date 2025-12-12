@@ -2,24 +2,6 @@ package com.cimbaai.emailassistant;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-import org.springframework.web.client.RestTemplate;
-
-/**
- * Main Application Class for CIMBA AI Email Assistant
- *
- * This Spring Boot application provides AI-powered email reply generation
- * using Google's Gemini 1.5 Pro model and PostgreSQL for data persistence.
- *
- * Features:
- * - Professional, Friendly, and Concise tone options
- * - Email reply history storage
- * - RESTful API endpoints
- * - Integration with Google Gemini AI
- *
- * @author Arindam Dandapat
- * @version 1.0
- */
 @SpringBootApplication
 public class EmailAssistantApplication {
 
@@ -39,14 +21,5 @@ public class EmailAssistantApplication {
             ║                                                              ║
             ╚══════════════════════════════════════════════════════════════╝
             """);
-    }
-
-    /**
-     * Bean definition for RestTemplate
-     * Used for making HTTP requests to external APIs (Gemini AI)
-     */
-    @Bean
-    public RestTemplate restTemplate() {
-        return new RestTemplate();
     }
 }
