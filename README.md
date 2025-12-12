@@ -14,11 +14,11 @@ A Spring Boot-based backend service that powers an AI-driven email assistant. Th
 ### AI & APIs
 ![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=for-the-badge&logo=openai&logoColor=white)
 ![REST API](https://img.shields.io/badge/REST_API-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![Google Gemini](https://img.shields.io/badge/Google%20Gemini-8E75B2?style=for-the-badge&logo=googlegemini&logoColor=white)
 
 ### Database & Tools
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=for-the-badge&logo=postgresql&logoColor=white)
 ![Git](https://img.shields.io/badge/Git-F05032?style=for-the-badge&logo=git&logoColor=white)
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white)
 
 ### Development Tools
 ![IntelliJ IDEA](https://img.shields.io/badge/IntelliJ_IDEA-000000?style=for-the-badge&logo=intellij-idea&logoColor=white)
@@ -26,302 +26,327 @@ A Spring Boot-based backend service that powers an AI-driven email assistant. Th
 
 </div>
 
-## 🚀 Features
+## Table of Contents
 
-- **AI-Powered Email Generation**: Generate professional email responses using AI
-- **Multiple Tone Support**: Support for various email tones (Professional, Casual, Friendly, etc.)
-- **RESTful API**: Clean and well-documented REST endpoints
-- **Spring Boot Framework**: Built on robust Spring Boot architecture
-- **Maven Build System**: Easy dependency management and build process
+- [Features](#features)
+- [Technology Stack](#technology-stack)
+- [Prerequisites](#prerequisites)
+- [Getting Started](#getting-started)
+- [API Endpoints](#api-endpoints)
+- [Configuration](#configuration)
+- [Usage Examples](#usage-examples)
+- [Project Structure](#project-structure)
+- [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
+- [License](#license)
 
-## 📋 Prerequisites
+## Features
 
-Before you begin, ensure you have the following installed:
+- **AI-Powered Reply Generation**: Leverages Google Gemini 2.0 Flash model for intelligent responses
+- **Multiple Tone Options**: Professional, Friendly, or Concise reply styles
+- **Persistent Storage**: PostgreSQL database for reply history
+- **Query Capabilities**: Search and filter replies by date, tone, or ID
+- **RESTful API**: Clean REST endpoints for easy integration
+- **Fast & Scalable**: Built with Spring Boot for enterprise-grade performance
 
-- **Java JDK 17+** (or compatible version)
-- **Maven 3.6+**
-- **PostgreSQL 12+**
-- **Git**
-- An **AI API Key** (e.g., OpenAI, Google Gemini, or similar)
 
-## 🛠️ Installation
+## Prerequisites
 
-### 1. Clone the Repository
+- Java 17 or higher
+- Maven 3.6+
+- PostgreSQL 16+
+- Google Gemini API key ([Get one here](https://aistudio.google.com/app/apikey))
 
-```bash
-git clone https://github.com/arindamdandapat11/Ai_email_assistant_backend.git
-cd Ai_email_assistant_backend
-```
+## Getting Started
 
-### 2. Configure Environment Variables
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/arindamdandapat11/ai.git
+   cd ai/email-assistant
+   ```
 
-Create a `.env` file in the project root or configure `application.properties`:
+2. **Install and start PostgreSQL**
+   
+   Create the database:
+   ```sql
+   CREATE DATABASE email_assistant;
+   ```
 
-```properties
-# AI API Configuration
-AI_API_KEY=your_api_key_here
-AI_MODEL=gpt-4  # or your preferred model
+3. **Run the database schema**
+   ```bash
+   psql -U postgres -d email_assistant -f init.sql
+   ```
 
-# Database Configuration
-DB_HOST=localhost
-DB_PORT=5432
-DB_NAME=email_assistant_db
-DB_USERNAME=your_db_username
-DB_PASSWORD=your_db_password
+4. **Configure application**
+   
+   Edit `src/main/resources/application.properties`:
+   ```properties
+   spring.datasource.url=jdbc:postgresql://localhost:5432/email_assistant
+   spring.datasource.username=your_postgres_username
+   spring.datasource.password=your_postgres_password
+   ```
 
-# Server Configuration
-server.port=8080
+5. **Set Gemini API key as environment variable**
+   
+   **Windows (PowerShell):**
+   ```powershell
+   $env:GEMINI_API_KEY="your_gemini_api_key"
+   ```
+   
+   **Mac/Linux:**
+   ```bash
+   export GEMINI_API_KEY=your_gemini_api_key
+   ```
 
-# CORS Configuration (adjust for your frontend URL)
-cors.allowed.origins=http://localhost:3000
-```
+6. **Build and run the application**
+   ```bash
+   mvn clean install
+   mvn spring-boot:run
+   ```
 
-### 3. Setup PostgreSQL Database
+7. **Access the application**
+   - API: http://localhost:8080
+   - Health Check: http://localhost:8080/api/email/health
 
-Create the database:
+## API Endpoints
 
-```sql
-CREATE DATABASE email_assistant_db;
-CREATE USER your_db_username WITH PASSWORD 'your_db_password';
-GRANT ALL PRIVILEGES ON DATABASE email_assistant_db TO your_db_username;
-```
+### Generate Email Reply
+```http
+POST /api/email/generate-reply
+Content-Type: application/json
 
-### 4. Install Dependencies
-
-Using Maven Wrapper (recommended):
-
-```bash
-./mvnw clean install
-```
-
-Or using Maven directly:
-
-```bash
-mvn clean install
-```
-
-## 🚦 Running the Application
-
-### Development Mode
-
-```bash
-./mvnw spring-boot:run
-```
-
-Or:
-
-```bash
-mvn spring-boot:run
-```
-
-The server will start on `http://localhost:8080` by default.
-
-### Production Build
-
-```bash
-./mvnw clean package
-java -jar target/ai-email-assistant-backend-*.jar
-```
-
-## 📡 API Endpoints
-
-### Generate Email Response
-
-**POST** `/api/email/generate`
-
-Generates an AI-powered email response based on the input.
-
-**Request Body:**
-```json
 {
-  "originalEmail": "The email content to respond to",
-  "tone": "professional",
-  "context": "Optional additional context"
+  "sender": "john@example.com",
+  "subject": "Meeting Request",
+  "body": "Hi, can we schedule a meeting for tomorrow at 3 PM?",
+  "tone": "professional"
 }
 ```
 
 **Response:**
 ```json
 {
-  "generatedResponse": "AI-generated email response",
+  "id": 1,
+  "sender": "john@example.com",
+  "subject": "Meeting Request",
+  "body": "Hi, can we schedule a meeting for tomorrow at 3 PM?",
   "tone": "professional",
-  "timestamp": "2024-12-12T10:30:00Z"
+  "generatedReply": "Thank you for reaching out. I would be happy to meet with you tomorrow at 3 PM. Please let me know the preferred location or if you'd like to meet virtually.",
+  "createdAt": "2025-12-12T10:30:00Z",
+  "updatedAt": "2025-12-12T10:30:00Z",
+  "success": true,
+  "message": "Reply generated successfully"
 }
+```
+
+### Get All Replies
+```http
+GET /api/email/replies
+```
+
+### Get Reply by ID
+```http
+GET /api/email/replies/{id}
+```
+
+### Get Recent Replies (Last 30 Days)
+```http
+GET /api/email/replies/recent
 ```
 
 ### Health Check
-
-**GET** `/api/health`
-
-Returns the health status of the application.
-
-## 🏗️ Project Structure
-
-```
-Ai_email_assistant_backend/
-├── src/
-│   ├── main/
-│   │   ├── java/
-│   │   │   └── com/
-│   │   │       └── emailassistant/
-│   │   │           ├── controller/    # REST controllers
-│   │   │           ├── service/       # Business logic
-│   │   │           ├── model/         # Data models
-│   │   │           ├── config/        # Configuration classes
-│   │   │           └── util/          # Utility classes
-│   │   └── resources/
-│   │       ├── application.properties
-│   │       └── static/
-│   └── test/
-│       └── java/                       # Unit tests
-├── .mvn/
-├── pom.xml                             # Maven configuration
-├── .env                                # Environment variables
-├── .gitignore
-└── README.md
+```http
+GET /api/email/health
 ```
 
-## 🎯 Architecture
+## Configuration
 
-<div align="center">
+### Tone Options
 
-```mermaid
-graph TB
-    A[Frontend Client] -->|HTTP/REST| B[Spring Boot Backend]
-    B -->|API Call| C[AI Service OpenAI/Gemini]
-    B -->|Query/Store| D[PostgreSQL Database]
-    B -->|Cache| E[Redis Optional]
-    
-    subgraph Backend Services
-        B --> F[Email Controller]
-        F --> G[Email Service]
-        G --> H[AI Integration Service]
-        G --> I[Email Repository]
-    end
-    
-    style A fill:#61dafb,stroke:#333,stroke-width:2px
-    style B fill:#6db33f,stroke:#333,stroke-width:2px
-    style C fill:#412991,stroke:#333,stroke-width:2px
-    style D fill:#316192,stroke:#333,stroke-width:2px
-```
+| Tone | Description | Use Case |
+|------|-------------|----------|
+| **professional** | Formal, business-appropriate language | Business emails, formal correspondence |
+| **friendly** | Warm, conversational tone | Casual emails, networking |
+| **concise** | Brief and to-the-point | Quick responses, busy schedules |
 
-</div>
-
-## 🔧 Configuration
-
-### Application Properties
-
-Edit `src/main/resources/application.properties`:
-
-```properties
-# Application Name
-spring.application.name=ai-email-assistant-backend
-
-# Server Port
-server.port=8080
-
-# PostgreSQL Database Configuration
-spring.datasource.url=jdbc:postgresql://localhost:5432/email_assistant_db
-spring.datasource.username=your_db_username
-spring.datasource.password=your_db_password
-spring.datasource.driver-class-name=org.postgresql.Driver
-
-# JPA/Hibernate Configuration
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
-spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.PostgreSQLDialect
-spring.jpa.properties.hibernate.format_sql=true
-
-# AI Service Configuration
-ai.service.endpoint=https://api.openai.com/v1
-ai.service.model=gpt-4
-ai.service.max-tokens=1000
-ai.service.temperature=0.7
-
-# CORS Configuration
-spring.web.cors.allowed-origins=http://localhost:3000,https://yourdomain.com
-spring.web.cors.allowed-methods=GET,POST,PUT,DELETE,OPTIONS
-spring.web.cors.allowed-headers=*
-```
-
-## 🧪 Testing
-
-Run unit tests:
-
-```bash
-./mvnw test
-```
-
-Run tests with coverage:
-
-```bash
-./mvnw test jacoco:report
-```
-
-## 🐳 Docker Deployment
-
-### Build Docker Image
-
-```dockerfile
-# Dockerfile example
-FROM openjdk:17-jdk-slim
-WORKDIR /app
-COPY target/*.jar app.jar
-EXPOSE 8080
-ENTRYPOINT ["java", "-jar", "app.jar"]
-```
-
-Build and run:
-
-```bash
-docker build -t ai-email-assistant-backend .
-docker run -p 8080:8080 --env-file .env ai-email-assistant-backend
-```
-
-## 🌐 Integration with Frontend
-
-This backend is designed to work with a frontend application. Configure CORS settings to allow your frontend domain:
-
-```java
-@Configuration
-public class CorsConfig {
-    @Bean
-    public WebMvcConfigurer corsConfigurer() {
-        return new WebMvcConfigurer() {
-            @Override
-            public void addCorsMappings(CorsRegistry registry) {
-                registry.addMapping("/api/**")
-                        .allowedOrigins("http://localhost:3000")
-                        .allowedMethods("GET", "POST", "PUT", "DELETE");
-            }
-        };
-    }
-}
-```
-
-## 🔐 Security Considerations
-
-- **API Keys**: Never commit API keys to version control
-- **Environment Variables**: Use `.env` file or environment variables for sensitive data
-- **HTTPS**: Use HTTPS in production
-- **Rate Limiting**: Implement rate limiting to prevent abuse
-- **Input Validation**: Always validate and sanitize user inputs
-
-## 📝 Environment Variables
+### Environment Variables
 
 | Variable | Description | Required | Default |
 |----------|-------------|----------|---------|
-| `AI_API_KEY` | API key for AI service | Yes | - |
-| `AI_MODEL` | AI model to use | No | gpt-4 |
-| `DB_HOST` | PostgreSQL host | Yes | localhost |
-| `DB_PORT` | PostgreSQL port | Yes | 5432 |
-| `DB_NAME` | Database name | Yes | email_assistant_db |
-| `DB_USERNAME` | Database username | Yes | - |
-| `DB_PASSWORD` | Database password | Yes | - |
-| `SERVER_PORT` | Server port | No | 8080 |
-| `CORS_ORIGINS` | Allowed CORS origins | No | * |
+| `GEMINI_API_KEY` | Google Gemini API key | Yes | - |
+| `SPRING_DATASOURCE_URL` | PostgreSQL connection URL | No | `jdbc:postgresql://localhost:5432/email_assistant` |
+| `SPRING_DATASOURCE_USERNAME` | Database username | No | `postgres` |
+| `SPRING_DATASOURCE_PASSWORD` | Database password | No | `Arindam123` |
 
-## 🤝 Contributing
+## Usage Examples
+
+### Using cURL
+
+**Generate a Professional Reply:**
+```bash
+curl -X POST http://localhost:8080/api/email/generate-reply \
+  -H "Content-Type: application/json" \
+  -d '{
+    "sender": "client@company.com",
+    "subject": "Project Update",
+    "body": "Can you provide an update on the project status?",
+    "tone": "professional"
+  }'
+```
+
+**Get All Replies:**
+```bash
+curl http://localhost:8080/api/email/replies
+```
+
+### Using Postman
+
+1. **Create a new POST request**
+2. **URL:** `http://localhost:8080/api/email/generate-reply`
+3. **Headers:** 
+   - Key: `Content-Type`
+   - Value: `application/json`
+4. **Body (raw JSON):**
+   ```json
+   {
+     "sender": "test@example.com",
+     "subject": "Test Email",
+     "body": "This is a test email body",
+     "tone": "friendly"
+   }
+   ```
+
+## Project Structure
+
+```
+email-assistant/
+├── src/
+│   ├── main/
+│   │   ├── java/com/cimbaai/emailassistant/
+│   │   │   ├── EmailAssistantApplication.java    # Main application class
+│   │   │   ├── config/
+│   │   │   │   ├── CorsConfig.java               # CORS configuration
+│   │   │   │   └── RestTemplateConfig.java       # HTTP client config
+│   │   │   ├── controller/
+│   │   │   │   └── EmailReplyController.java     # REST endpoints
+│   │   │   ├── dto/
+│   │   │   │   ├── EmailReplyRequest.java        # Request DTO
+│   │   │   │   ├── EmailReplyResponse.java       # Response DTO
+│   │   │   │   ├── GeminiRequest.java            # Gemini API request
+│   │   │   │   └── GeminiResponse.java           # Gemini API response
+│   │   │   ├── model/
+│   │   │   │   └── EmailReply.java               # JPA entity
+│   │   │   ├── repository/
+│   │   │   │   └── EmailReplyRepository.java     # Data access layer
+│   │   │   └── service/
+│   │   │       ├── EmailReplyService.java        # Business logic
+│   │   │       └── GeminiAIService.java          # AI integration
+│   │   └── resources/
+│   │       └── application.properties             # Configuration
+│   └── test/                                      # Unit tests
+├── init.sql                                        # Database schema
+├── pom.xml                                         # Maven dependencies
+└── README.md                                       # This file
+```
+
+## Troubleshooting
+
+### Common Issues
+
+#### 1. Database Connection Refused
+**Problem:** `Connection to localhost:5432 refused`
+
+**Solution:** Check PostgreSQL service is running:
+```bash
+# Windows
+Get-Service -Name "*postgres*"
+
+# Mac/Linux
+sudo service postgresql status
+```
+
+#### 2. API Key Error 500
+**Problem:** API returns 500 error with "API key expired"
+
+**Solution:** 
+- Get a new API key from Google AI Studio
+- Update your environment variable with the new key
+- Restart the application
+
+#### 3. Port Already in Use
+**Problem:** `Port 8080 is already allocated`
+
+**Solution:** 
+- Stop the service using port 8080
+- Or change the port in `application.properties`:
+  ```properties
+  server.port=8081
+  ```
+
+#### 4. Maven Build Fails
+**Problem:** `Failed to execute goal maven-compiler-plugin`
+
+**Solution:** Ensure Java 17 is installed:
+```bash
+java -version
+```
+
+### Application Logs
+
+## Database Schema
+
+```sql
+CREATE TABLE email_replies (
+    id BIGSERIAL PRIMARY KEY,
+    sender VARCHAR(255),
+    subject VARCHAR(500),
+    body TEXT NOT NULL,
+    tone VARCHAR(50) NOT NULL CHECK (tone IN ('professional', 'friendly', 'concise')),
+    generated_reply TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+```
+
+## Security Best Practices
+
+1. **Never commit API keys** - Always use environment variables
+2. **Keep `.env` in `.gitignore`** - Prevent accidental commits
+3. **Rotate API keys regularly** - Update keys periodically
+4. **Use HTTPS in production** - Encrypt data in transit
+5. **Implement rate limiting** - Prevent API abuse
+6. **Use strong database passwords** - Change default credentials
+
+## Deployment
+
+### Production Deployment
+
+1. **Build the application**
+   ```bash
+   mvn clean package
+   ```
+
+2. **Run the JAR file**
+   ```bash
+   java -jar target/email-assistant-0.0.1-SNAPSHOT.jar
+   ```
+
+3. **Configure for production**
+   - Use environment variables for sensitive data
+   - Set up a production PostgreSQL database
+   - Configure HTTPS/SSL
+   - Set up reverse proxy (nginx/Apache)
+
+### Cloud Deployment Options
+
+- **AWS**: EC2 + RDS PostgreSQL
+- **Google Cloud**: Compute Engine + Cloud SQL
+- **Azure**: App Service + Azure Database for PostgreSQL
+- **Heroku**: Easy deployment with Heroku Postgres
+
+## Contributing
+
+Contributions are welcome! Please follow these steps:
 
 1. Fork the repository
 2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
@@ -329,55 +354,31 @@ public class CorsConfig {
 4. Push to the branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 📜 License
+## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 👤 Author
+## Author
 
 **Arindam Dandapat**
 - GitHub: [@arindamdandapat11](https://github.com/arindamdandapat11)
+- Repository: [ai](https://github.com/arindamdandapat11/ai)
 
-## 🐛 Troubleshooting
+## Acknowledgments
 
-### Common Issues
+- Google Gemini AI for powerful language generation
+- Spring Boot team for the excellent framework
+- PostgreSQL community for the robust database
 
-**Issue**: Application fails to start
-- **Solution**: Ensure Java 17+ is installed and JAVA_HOME is set correctly
+## Support
 
-**Issue**: Database connection failed
-- **Solution**: Verify PostgreSQL is running and credentials in `.env` are correct. Check if the database exists.
+For issues, questions, or contributions:
+- Open an [Issue](https://github.com/arindamdandapat11/ai/issues)
+- Submit a [Pull Request](https://github.com/arindamdandapat11/ai/pulls)
 
-**Issue**: AI API calls failing
-- **Solution**: Verify your API key is correct and has sufficient credits/quota
+---
 
-**Issue**: CORS errors
-- **Solution**: Check that your frontend URL is added to allowed origins
-
-**Issue**: Port already in use
-- **Solution**: Change the port in `application.properties` or stop the conflicting service
-
-**Issue**: Hibernate schema generation errors
-- **Solution**: Ensure PostgreSQL user has proper permissions. Try setting `spring.jpa.hibernate.ddl-auto=create` for first run.
-
-## 📚 Additional Resources
-
-- [Spring Boot Documentation](https://spring.io/projects/spring-boot)
-- [Maven Documentation](https://maven.apache.org/guides/)
-- [OpenAI API Documentation](https://platform.openai.com/docs)
-
-## 🗺️ Roadmap
-
-- [ ] Add email scheduling functionality
-- [ ] Implement email template management
-- [ ] Add support for multiple AI providers
-- [ ] Implement caching for frequently used responses
-- [ ] Add email analytics and insights
-- [ ] Support for attachments processing
-
-## 💬 Support
-
-For support, email arindamdandapat11@example.com or open an issue in the GitHub repository.
+Made by Arindam Dandapat
 
 ---
 
